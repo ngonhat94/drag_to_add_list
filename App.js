@@ -9,7 +9,7 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import {DraxProvider, DraxView} from 'react-native-drax';
+import {DraxProvider, DraxView, DraxList} from 'react-native-drax';
 const Tesst = () =>
   React.useMemo(() => {
     {
@@ -47,11 +47,51 @@ const App = () => {
         'https://i.pinimg.com/originals/7d/74/4a/7d744a684fe03ebc7e8de545f97739dd.jpg',
     },
     {
-      id: 2,
+      id: 3,
       image:
         'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg',
     },
   ];
+  const workItems = [
+    {
+      id: 0,
+      name: 'Work Item 1',
+      items: [
+        'https://thumbs.dreamstime.com/b/imagination-girl-kiss-lion-love-nature-abstract-concept-young-steals-male-wildlife-children-like-to-imagine-play-129595579.jpg',
+        'https://www.bhaktiphotos.com/wp-content/uploads/2018/04/Hindu-Shiva-God-Wallpaper-Free-Download.jpg',
+        'https://www.santabanta.com/images/wallpapers/spiritual/may-lord-shiva-shower-hes-blessing-on-you-and-your-family-this-mahashivratri_1024-768.jpg',
+      ],
+    },
+    {
+      id: 1,
+      name: 'Work Item 2',
+      items: [
+        'https://cdn.cnn.com/cnnnext/dam/assets/181215042152-nasa-juno-01-exlarge-169.jpg',
+        'https://www.whatsappimages.in/wp-content/uploads/2021/01/Feeling-Very-Sad-Images-Wallpaper-Free-2.jpg',
+        'https://ichef.bbci.co.uk/news/976/cpsprodpb/1572B/production/_88615878_976x1024n0037151.jpg',
+      ],
+    },
+  ];
+  const receivedItem = (item, i) => {
+    console.log(item);
+    return (
+      <DraxView
+        style={{flex: 1}}
+        onReceiveDragDrop={event => {
+          console.log('======', event);
+          console.log('-------', item);
+        }}>
+        <Image
+          source={{uri: i}}
+          style={{
+            width: (width - 10) / 4,
+            height: (width - 10) / 4,
+            borderRadius: 5,
+          }}
+        />
+      </DraxView>
+    );
+  };
   return (
     // <View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
     // <TextInput placeholder='tao test' onChangeText={text => setText(text)}/>
@@ -60,25 +100,20 @@ const App = () => {
     <SafeAreaView style={{flex: 1}}>
       <DraxProvider>
         <View style={styles.container}>
-          <DraxView
-            style={styles.draggable}
-            onDragStart={() => {
-              console.log('start drag');
-            }}
-            payload="world"
-          />
-          <DraxView
-            style={styles.receiver}
-            onReceiveDragEnter={({dragged: {payload}}) => {
-              console.log(`hello ${payload}`);
-            }}
-            onReceiveDragExit={({dragged: {payload}}) => {
-              console.log(`goodbye ${payload}`);
-            }}
-            onReceiveDragDrop={({dragged: {payload}}) => {
-              console.log(`received ${payload}`);
-            }}
-          />
+          <View>
+            {workItems.map((v, index) => (
+              <View>
+                <Text>{v.name}</Text>
+                <FlatList
+                  data={v.items}
+                  renderItem={({item}) => receivedItem(v, item)}
+                  horizontal
+                  style={{marginLeft: 2, marginTop: 2}}
+                  ItemSeparatorComponent={() => <View style={{width: 2}} />}
+                />
+              </View>
+            ))}
+          </View>
           <View style={styles.dragable}>
             <TouchableOpacity
               style={styles.header}
@@ -92,16 +127,25 @@ const App = () => {
                 style={{width: 20, height: 20}}
               />
             </TouchableOpacity>
-            <FlatList
-              data={images}
-              renderItem={({item}) => (
-                <Image
-                  source={{uri: item.image}}
-                  style={{width: (width - 10) / 4, height: 50}}
-                />
-              )}
-              horizontal
-            />
+            {showItem && (
+              <DraxList
+                data={images}
+                renderItemContent={({item}) => (
+                  <Image
+                    source={{uri: item.image}}
+                    style={{
+                      width: (width - 10) / 4,
+                      height: (width - 10) / 4,
+                      borderRadius: 5,
+                    }}
+                  />
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                style={{marginLeft: 2, marginTop: 2}}
+                ItemSeparatorComponent={() => <View style={{width: 2}} />}
+              />
+            )}
           </View>
         </View>
       </DraxProvider>
