@@ -10,23 +10,23 @@ import {
   Dimensions,
 } from 'react-native';
 import {DraxProvider, DraxView, DraxList} from 'react-native-drax';
-const Tesst = () =>
-  React.useMemo(() => {
-    {
-      console.log('render lai Tesst');
-      return (
-        <View style={{width: 100, height: 100, backgroundColor: 'green'}} />
-      );
-    }
-  }, []);
-const TesstText = ({text}) => {
-  console.log('render lai', text);
-  return (
-    <View style={{width: 100, height: 100, backgroundColor: 'red'}}>
-      <Text>{text}</Text>
-    </View>
-  );
-};
+// const Tesst = () =>
+//   React.useMemo(() => {
+//     {
+//       console.log('render lai Tesst');
+//       return (
+//         <View style={{width: 100, height: 100, backgroundColor: 'green'}} />
+//       );
+//     }
+//   }, []);
+// const TesstText = ({text}) => {
+//   console.log('render lai', text);
+//   return (
+//     <View style={{width: 100, height: 100, backgroundColor: 'red'}}>
+//       <Text>{text}</Text>
+//     </View>
+//   );
+// };
 const App = () => {
   const {width} = Dimensions.get('window');
   const [showItem, setShowItem] = React.useState(true);
@@ -72,25 +72,25 @@ const App = () => {
       ],
     },
   ];
+  const [workItem, setWorkItem] = React.useState(workItems);
   const receivedItem = (item, i) => {
-    console.log(item);
     return (
-      <DraxView
-        style={{flex: 1}}
-        onReceiveDragDrop={event => {
-          console.log('======', event);
-          console.log('-------', item);
-        }}>
-        <Image
-          source={{uri: i}}
-          style={{
-            width: (width - 10) / 4,
-            height: (width - 10) / 4,
-            borderRadius: 5,
-          }}
-        />
-      </DraxView>
+      <Image
+        source={{uri: i}}
+        style={{
+          width: (width - 10) / 4,
+          height: (width - 10) / 4,
+          borderRadius: 5,
+        }}
+      />
     );
+  };
+  const onReceiveDragDrop = (event, workItemIndex) => {
+    const itemDrag = images[event.dragged.payload.index];
+    let arr = workItem;
+
+    arr[workItemIndex].items.push(itemDrag.image);
+    setWorkItem(arr);
   };
   return (
     // <View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
@@ -101,16 +101,26 @@ const App = () => {
       <DraxProvider>
         <View style={styles.container}>
           <View>
-            {workItems.map((v, index) => (
+            {workItem.map((v, workItemIndex) => (
               <View>
                 <Text>{v.name}</Text>
-                <FlatList
-                  data={v.items}
-                  renderItem={({item}) => receivedItem(v, item)}
-                  horizontal
-                  style={{marginLeft: 2, marginTop: 2}}
-                  ItemSeparatorComponent={() => <View style={{width: 2}} />}
-                />
+                <DraxView
+                  style={{backgroundColor: 'red'}}
+                  onReceiveDragDrop={event =>
+                    onReceiveDragDrop(event, workItemIndex)
+                  }>
+                  <FlatList
+                    data={v.items}
+                    renderItem={({item}) => receivedItem(v, item)}
+                    // horizontal
+                    style={{
+                      marginLeft: 2,
+                      marginTop: 2,
+                    }}
+                    ItemSeparatorComponent={() => <View style={{width: 2}} />}
+                    numColumns={4}
+                  />
+                </DraxView>
               </View>
             ))}
           </View>
